@@ -1,0 +1,725 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "スマート為替予約API一覧",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "contact@gfit.jp"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "swagger.io",
+  "basePath": "/v2",
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "tags": [
+          "会員登録"
+        ],
+        "summary": "会員登録",
+        "description": "会員を登録する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RegisterUserDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功に登録した",
+            "schema": {
+              "$ref": "#/definitions/UserDTO"
+            }
+          },
+          "500": {
+            "description": "エラーが発生する",
+            "schema": {
+              "$ref": "#/definitions/ErrorUserDTO"
+            }
+          }
+        }
+      }
+    },
+    "/authenticate": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "summary": "Login",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LoginResponseDTO"
+            }
+          }
+        }
+      }
+    },
+    "/hedge-groups": {
+      "post": {
+        "tags": [
+          "Hedge group CRUD"
+        ],
+        "summary": "Create hedge",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateHedgeGroupDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/HedgeGroupDTO"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Hedge group CRUD"
+        ],
+        "summary": "ヘッジグループを取得する",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "param",
+            "name": "page",
+            "description": "ページNo",
+            "required": false
+          },
+          {
+            "in": "param",
+            "name": "size",
+            "description": "ページ件数",
+            "required": false
+          },
+          {
+            "in": "param",
+            "name": "search",
+            "description": "検索条件",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/PagingHedgeGroupDTO"
+            }
+          }
+        }
+      }
+    },
+    "/hedge-groups/{id}": {
+      "patch": {
+        "tags": [
+          "Hedge group CRUD"
+        ],
+        "summary": "Partial update hedge group",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the hedge group",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateHedgeGroupDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/HedgeGroupDTO"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Hedge group CRUD"
+        ],
+        "summary": "Delete hedge groups",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the hedge group",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/hedges": {
+      "post": {
+        "tags": [
+          "Hedge CRUD"
+        ],
+        "summary": "Create hedge",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateHedgeDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/HedgeDTO"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Hedge CRUD"
+        ],
+        "summary": "Get hedges",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "param",
+            "name": "page",
+            "required": false
+          },
+          {
+            "in": "param",
+            "name": "size",
+            "required": false
+          },
+          {
+            "in": "param",
+            "name": "search",
+            "required": false
+          },
+          {
+            "in": "param",
+            "name": "fromDate",
+            "required": false
+          },
+          {
+            "in": "param",
+            "name": "toDate",
+            "required": false
+          },
+          {
+            "in": "param",
+            "name": "status",
+            "required": false
+          },
+          {
+            "in": "param",
+            "name": "group",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/PagingHedgeDTO"
+            }
+          }
+        }
+      }
+    },
+    "/hedges/{id}": {
+      "get": {
+        "tags": [
+          "Hedge CRUD"
+        ],
+        "summary": "Get hedge",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the hedge",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/HedgeDTO"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Hedge CRUD"
+        ],
+        "summary": "Partial update hedge",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the hedge",
+            "type": "string",
+            "require": true
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateHedgeDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/HedgeDTO"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Hedge CRUD"
+        ],
+        "summary": "Delete hedge",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the hedge",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RegisterUserDTO": {
+      "type": "object",
+      "required": ["otp", "email", "password"],
+      "properties": {
+        "otp": {
+          "type": "string",
+          "required": true
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "UserDTO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "ErrorUserDTO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "object",
+          "properties": {"errors" : {"type":"string"}}
+        }
+      }
+    },
+    "LoginDTO": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "otp": {
+          "type": "string"
+        }
+      }
+    },
+    "LoginResponseDTO": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "CreateHedgeGroupDTO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "UpdateHedgeGroupDTO": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "HedgeGroupDTO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "PagingHedgeGroupDTO": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "totalItems": {
+          "type": "number"
+        },
+        "totalPages": {
+          "type": "number"
+        },
+        "currentPage": {
+          "type": "number"
+        }
+      }
+    },
+    "CreateHedgeDTO": {
+      "type": "object",
+      "properties": {
+        "hedgeGroupId": {
+          "type": "string"
+        },
+        "currencyPair": {
+          "type": "string"
+        },
+        "buyingAndSelling": {
+          "type": "string"
+        },
+        "transactionAmount": {
+          "type": "string"
+        },
+        "percentage": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string"
+        },
+        "hedgeOrderName": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        }
+      }
+    },
+    "UpdateHedgeDTO": {
+      "type": "object",
+      "properties": {
+        "hedgeGroupId": {
+          "type": "string"
+        },
+        "currencyPair": {
+          "type": "string"
+        },
+        "buyingAndSelling": {
+          "type": "string"
+        },
+        "transactionAmount": {
+          "type": "string"
+        },
+        "percentage": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string"
+        },
+        "hedgeOrderName": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        }
+      }
+    },
+    "HedgeDTO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "hedgeGroupId": {
+          "type": "string"
+        },
+        "currencyPair": {
+          "type": "string"
+        },
+        "buyingAndSelling": {
+          "type": "string"
+        },
+        "transactionAmount": {
+          "type": "string"
+        },
+        "percentage": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string"
+        },
+        "hedgeOrderName": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        }
+      }
+    },
+    "PagingHedgeDTO": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "hedgeGroupId": {
+                "type": "string"
+              },
+              "currencyPair": {
+                "type": "string"
+              },
+              "buyingAndSelling": {
+                "type": "string"
+              },
+              "transactionAmount": {
+                "type": "string"
+              },
+              "percentage": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "string"
+              },
+              "hedgeOrderName": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "period": {
+                "type": "string"
+              },
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "totalItems": {
+          "type": "number"
+        },
+        "totalPages": {
+          "type": "number"
+        },
+        "currentPage": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

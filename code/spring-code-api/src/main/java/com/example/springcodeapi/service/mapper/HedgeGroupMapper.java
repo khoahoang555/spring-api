@@ -26,12 +26,12 @@ public class HedgeGroupMapper implements EntityMapper<HedgeGroupDTO, HedgeGroup>
     }
 
     @Override
-    public List<HedgeGroup> toEntity(List<HedgeGroupDTO> dtoList) {
+    public List<HedgeGroup> toListEntity(List<HedgeGroupDTO> dtoList) {
         return null;
     }
 
     @Override
-    public List<HedgeGroupDTO> toDto(List<HedgeGroup> entityList) {
+    public List<HedgeGroupDTO> toListDto(List<HedgeGroup> entityList) {
         return null;
     }
 }

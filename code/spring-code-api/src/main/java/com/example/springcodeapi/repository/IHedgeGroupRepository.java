@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface IHedgeGroupRepository extends JpaRepository<HedgeGroup, UUID> {
+    HedgeGroup findOneByNameContaining(String name);
 }

@@ -5,6 +5,7 @@ import com.example.springcodeapi.service.dto.HedgeGroupDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HedgeGroupMapper implements EntityMapper<HedgeGroupDTO, HedgeGroup>{
@@ -27,11 +28,11 @@ public class HedgeGroupMapper implements EntityMapper<HedgeGroupDTO, HedgeGroup>
 
     @Override
     public List<HedgeGroup> toListEntity(List<HedgeGroupDTO> dtoList) {
-        return null;
+        return dtoList.stream().map(hedgeGroupDTO -> this.toEntity(hedgeGroupDTO)).collect(Collectors.toList());
     }
 
     @Override
     public List<HedgeGroupDTO> toListDto(List<HedgeGroup> entityList) {
-        return null;
+        return entityList.stream().map(entity -> this.toDto(entity)).collect(Collectors.toList());
     }
 }

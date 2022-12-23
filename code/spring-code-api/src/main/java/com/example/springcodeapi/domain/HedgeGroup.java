@@ -20,7 +20,7 @@ public class HedgeGroup extends AbstractAuditingEntity implements Serializable {
     @GeneratedValue
     private UUID id = UUID.randomUUID();
 
-    @Column(length = 64, unique = true, nullable = false)
+    @Column(length = 64, nullable = false)
     private String name;
 
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PagingHedgeGroupDTO {
     private List<HedgeGroupDTO> results;
-    private int totalItems;
+    private long totalItems;
     private int totalPages;
     private int currentPage;
 }

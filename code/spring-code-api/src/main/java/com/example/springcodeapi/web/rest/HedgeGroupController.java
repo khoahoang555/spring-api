@@ -6,13 +6,13 @@ import com.example.springcodeapi.service.dto.HedgeGroupDTO;
 import com.example.springcodeapi.service.dto.PagingHedgeGroupDTO;
 import com.example.springcodeapi.service.dto.SaveHedgeGroupDTO;
 import com.example.springcodeapi.service.errors.HedgeGroupNotFound;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
 

@@ -1,10 +1,10 @@
 package com.example.springcodeapi.service.dto;
 
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Size;
 import java.util.UUID;
 
 @Data

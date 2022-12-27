@@ -97,6 +97,7 @@ public class PostServiceImpl implements PostService {
         postDto.setTitle(post.getTitle());
         postDto.setDescription(post.getDescription());
         postDto.setContent(post.getContent());
+        postDto.setStartDate(post.getStartDate());
         return postDto;
     }
 
@@ -106,6 +107,7 @@ public class PostServiceImpl implements PostService {
         post.setTitle(postDto.getTitle());
         post.setDescription(postDto.getDescription());
         post.setContent(postDto.getContent());
+        post.setStartDate(postDto.getStartDate());
         return post;
     }
 }

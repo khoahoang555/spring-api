@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -30,4 +32,7 @@ public class Post {
 
     @Column(name = "content", nullable = false)
     private String content;
+
+    @Column(name = "start_date", nullable = true)
+    private LocalDate startDate;
 }

@@ -1,28 +1,36 @@
-package com.smart.exchange.orderservice.service.dto;
+package com.springboot.blog.payload;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ErrorDetails {
+    private HttpStatus status;
     private Date timestamp;
-//    private String message;
+    private List<Object> message;
     private String details;
-    private List<String> messages;
 
-    public ErrorDetails(Date timestamp, List<String> messages, String details) {
+    public ErrorDetails(HttpStatus status, Date timestamp, List<Object> message, String details) {
+        this.status = status;
         this.timestamp = timestamp;
-        this.messages = messages;
+        this.message = message;
         this.details = details;
     }
 
-//    public ErrorDetails(List<String> messages) {
-//        this.messages = messages;
-//    }
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public List<Object> getMessage() {
+        return message;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public HttpStatus getStatus() {
+        return status;
+    }
 }

@@ -1,38 +1,29 @@
 package com.springboot.blog.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.util.Date;
 
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(
-        name = "posts", uniqueConstraints = {@UniqueConstraint(columnNames = {"title"})}
+        name = "posts",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"title"})}
 )
 public class Post {
-
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, length = 64)
     private String title;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", length = 256)
     private String description;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, length = 64)
     private String content;
-
-    @Column(name = "start_date", nullable = true)
-    private LocalDate startDate;
 }

@@ -1,6 +1,5 @@
 package com.springboot.blog.entity;
 
-import com.smart.exchange.sharedlibrary.domain.AbstractAuditingEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "order_hedge_group", uniqueConstraints = {@UniqueConstraint(columnNames = {"organization_id", "name"})})
-public class HedgeGroup extends AbstractAuditingEntity implements Serializable {
+public class HedgeGroup implements Serializable {
 
     @Id
     @GeneratedValue
@@ -32,6 +31,6 @@ public class HedgeGroup extends AbstractAuditingEntity implements Serializable {
     @Column(name="name", length = 64, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "hedgeGroup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "hedgeGroup", fetch = FetchType.LAZY)
     private Set<Hedge> hedges;
 }

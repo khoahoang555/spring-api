@@ -1,6 +1,6 @@
 package com.springboot.blog.dto;
 
-import com.smart.exchange.orderservice.constant.Choices;
+import com.springboot.blog.constants.Choices;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

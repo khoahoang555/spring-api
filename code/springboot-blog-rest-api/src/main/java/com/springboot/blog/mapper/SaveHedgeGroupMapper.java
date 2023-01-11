@@ -1,7 +1,7 @@
 package com.springboot.blog.mapper;
 
-import com.smart.exchange.orderservice.domain.HedgeGroup;
-import com.smart.exchange.orderservice.service.dto.SaveHedgeGroupDTO;
+import com.springboot.blog.dto.SaveHedgeGroupDTO;
+import com.springboot.blog.entity.HedgeGroup;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,11 +30,6 @@ public class SaveHedgeGroupMapper implements EntityMapper<SaveHedgeGroupDTO, Hed
     @Override
     public List<SaveHedgeGroupDTO> toDto(List<HedgeGroup> entityList) {
         return null;
-    }
-
-    @Override
-    public void partialUpdate(HedgeGroup entity, SaveHedgeGroupDTO dto) {
-
     }
 
 }

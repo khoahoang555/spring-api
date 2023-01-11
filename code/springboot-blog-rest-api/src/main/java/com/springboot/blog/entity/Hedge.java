@@ -1,7 +1,7 @@
 package com.springboot.blog.entity;
 
-import com.smart.exchange.orderservice.constant.Choices;
-import com.smart.exchange.sharedlibrary.domain.AbstractAuditingEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springboot.blog.constants.Choices;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "order_hedge")
-public class Hedge extends AbstractAuditingEntity implements Serializable {
+public class Hedge implements Serializable {
 
     @Id
     @GeneratedValue
@@ -67,6 +67,7 @@ public class Hedge extends AbstractAuditingEntity implements Serializable {
     @Column(name = "end_date", nullable = true)
     private LocalDate endDate;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "hedge_group_id")
     private HedgeGroup hedgeGroup;

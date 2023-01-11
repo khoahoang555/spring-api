@@ -1,6 +1,6 @@
 package com.springboot.blog.repository;
 
-import com.smart.exchange.orderservice.domain.Hedge;
+import com.springboot.blog.entity.Hedge;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface IHedgeRepository extends JpaRepository<Hedge, UUID> {
-
-    List<Hedge> findHedgesByOrganizationId(UUID organizationId);
 
 }

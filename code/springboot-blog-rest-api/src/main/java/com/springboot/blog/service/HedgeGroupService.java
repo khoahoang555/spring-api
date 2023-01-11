@@ -1,16 +1,13 @@
-package com.springboot.blog.service.impl;
+package com.springboot.blog.service;
 
-import com.smart.exchange.orderservice.constant.SystemConst;
-import com.smart.exchange.orderservice.domain.HedgeGroup;
-import com.smart.exchange.orderservice.repository.IHedgeGroupRepository;
-import com.smart.exchange.orderservice.repository.IHedgeRepository;
-import com.smart.exchange.orderservice.security.SecurityUtils;
-import com.smart.exchange.orderservice.service.dto.*;
-import com.smart.exchange.orderservice.service.mapper.HedgeGroupMapper;
-import com.smart.exchange.orderservice.service.mapper.HedgeMapper;
-import com.smart.exchange.orderservice.service.mapper.SaveHedgeGroupMapper;
-import com.smart.exchange.sharedlibrary.error.rest.BadRequestException;
-import com.smart.exchange.sharedlibrary.error.rest.NotFoundException;
+import com.springboot.blog.dto.HedgeByGroupCriteriaDTO;
+import com.springboot.blog.entity.Hedge;
+import com.springboot.blog.entity.HedgeGroup;
+import com.springboot.blog.mapper.HedgeGroupMapper;
+import com.springboot.blog.mapper.HedgeMapper;
+import com.springboot.blog.mapper.SaveHedgeGroupMapper;
+import com.springboot.blog.repository.IHedgeGroupRepository;
+import com.springboot.blog.repository.IHedgeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,14 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SetAttribute;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+
+import com.springboot.blog.constants.SystemConst;
 
 @Service
 @Transactional
@@ -61,22 +59,6 @@ public class HedgeGroupService {
         this.hedgeRepository = hedgeRepository;
     }
 
-    public HedgeGroupDTO createHedgeGroup(SaveHedgeGroupDTO saveHedgeGroupDTO) {
-        UUID organizationId = SecurityUtils.getUserDetail().getOrgId();
-        UUID orgMemberId = SecurityUtils.getUserDetail().getOrgMemberId();
-
-        Optional<HedgeGroup> hedgeGroupChecked = hedgeGroupRepository.findFirstByNameAndOrganizationId(saveHedgeGroupDTO.getName(), organizationId);
-
-        if (hedgeGroupChecked.isPresent()) {
-            throw new BadRequestException("name", "このグループは既に登録済みです。");
-        }
-
-        HedgeGroup hedgeGroup = saveHedgeGroupMapper.toEntity(saveHedgeGroupDTO);
-        hedgeGroup.setOrgMemberId(orgMemberId);
-        hedgeGroup.setOrganizationId(organizationId);
-        HedgeGroup hedgeGroupSaved = hedgeGroupRepository.save(hedgeGroup);
-        return hedgeGroupMapper.toDto(hedgeGroupSaved);
-    }
 
 //    public List<HedgeGroup> findHedgeGroups(HedgeGroupCriteriaDTO hedgeGroupCriteriaDTO) {
 //        UUID organizationId = SecurityUtils.getUserDetail().getOrgId();
@@ -161,14 +143,25 @@ public class HedgeGroupService {
 //    }
 
     public List<HedgeGroup> findHedgeOrderAndHedgeGroup(HedgeByGroupCriteriaDTO hedgeByGroupCriteriaDTO) {
-        UUID organizationId = SecurityUtils.getUserDetail().getOrgId();
+
+        UUID organizationId = UUID.fromString("8d9ef960-90f9-11ed-a1eb-0242ac120002");
         String search = hedgeByGroupCriteriaDTO.getSearch();
         String buyOrSell = hedgeByGroupCriteriaDTO.getBuyOrSell();
         boolean checkDone = hedgeByGroupCriteriaDTO.isCheckDone();
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<HedgeGroup> criteriaQuery = criteriaBuilder.createQuery(HedgeGroup.class);
+
+        Metamodel m = entityManager.getMetamodel();
+        EntityType<HedgeGroup> hedgeGroupEntityType = m.entity(HedgeGroup.class);
+
         Root<HedgeGroup> hedgeGroupRoot = criteriaQuery.from(HedgeGroup.class);
+
+        //Join<HedgeGroup, Hedge> hedgeJoin = hedgeGroupRoot.join(hedgeGroupEntityType.getSet("hedges", Hedge.class));
+
+        SetAttribute setAttribute = hedgeGroupEntityType.getSet("hedges", Hedge.class);
+
+        //hedgeGroupRoot.fetch(hedgeGroupEntityType.getSet("hedges", Hedge.class), JoinType.LEFT);
 
         List<Predicate> hedgeGroupPredicates = new ArrayList<>();
 
@@ -177,15 +170,12 @@ public class HedgeGroupService {
         hedgeGroupPredicates.add(criteriaBuilder.or(predicateOrganizationId, predicateId));
 
         if (search != null) {
-            //hedgeGroupPredicates.add(criteriaBuilder.like(criteriaBuilder.upper(hedgeGroupRoot.get("name")), "%" + search.toUpperCase() + "%"));
             Predicate predicateHedgeGroupName = criteriaBuilder.like(criteriaBuilder.upper(hedgeGroupRoot.get("name")), "%" + search.toUpperCase() + "%");
             Predicate predicateHedgeOrderName = criteriaBuilder.like(criteriaBuilder.upper(hedgeGroupRoot.join("hedges").get("hedgeName")), "%" + search.toUpperCase() + "%");
             hedgeGroupPredicates.add(criteriaBuilder.or(predicateHedgeGroupName, predicateHedgeOrderName));
         }
 
         criteriaQuery.where(hedgeGroupPredicates.toArray(new Predicate[hedgeGroupPredicates.size()]));
-
-        criteriaQuery.orderBy(criteriaBuilder.asc(hedgeGroupRoot.get("createdAt")));
 
         TypedQuery<HedgeGroup> hedgeGroupTypedQuery = entityManager.createQuery(criteriaQuery);
 
@@ -194,32 +184,18 @@ public class HedgeGroupService {
         return hedgeGroups;
     }
 
-    public HedgeGroupDTO updateHedgeGroup(UUID id, SaveHedgeGroupDTO saveHedgeGroupDTO) {
-        UUID organizationId = SecurityUtils.getUserDetail().getOrgId();
 
-        Optional<HedgeGroup> hedgeGroupChecked = hedgeGroupRepository.findFirstByNameAndOrganizationIdAndIdIsNot(saveHedgeGroupDTO.getName(), organizationId, id);
-
-        if (hedgeGroupChecked.isPresent()) {
-            throw new BadRequestException("name", "このグループは既に登録済みです。");
-        }
-
-        HedgeGroup hedgeGroup = this.getHedgeGroupOrThrow(id);
-
-        if (hedgeGroup.getName() != saveHedgeGroupDTO.getName()) {
-            hedgeGroup.setName(saveHedgeGroupDTO.getName());
-            HedgeGroup hedgeGroupSaved = hedgeGroupRepository.save(hedgeGroup);
-            return hedgeGroupMapper.toDto(hedgeGroupSaved);
-        }
-        return hedgeGroupMapper.toDto(hedgeGroup);
-    }
-
-    public void deleteHedgeGroup(UUID id) {
-        HedgeGroup hedgeGroup = this.getHedgeGroupOrThrow(id);
-        hedgeGroupRepository.delete(hedgeGroup);
-    }
-
-    public HedgeGroup getHedgeGroupOrThrow(UUID id) {
-        return hedgeGroupRepository.findById(id).orElseThrow(() -> new NotFoundException("hedgeGroupId", "HedgeGroup not found!"));
-    }
+//    public List<HedgeGroup> findHedgeOrderAndHedgeGroup(HedgeByGroupCriteriaDTO hedgeByGroupCriteriaDTO) {
+//        String search = hedgeByGroupCriteriaDTO.getSearch();
+//        String sql = "select * " +
+//                     "from order_hedge oh " +
+//                     "inner join order_hedge_group ohg on oh.hedge_group_id = ohg.id " +
+//                     "where oh.hedge_name like :search or ohg.name like :search";
+//        List<HedgeGroup> hedgeGroups = entityManager
+//                .createNativeQuery(sql, HedgeGroup.class)
+//                .setParameter("search", search)
+//                .getResultList();
+//        return hedgeGroups;
+//    }
 
 }

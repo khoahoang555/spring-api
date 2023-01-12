@@ -1,6 +1,9 @@
 package com.springboot.blog.service;
 
+import com.springboot.blog.constants.Choices;
 import com.springboot.blog.dto.HedgeByGroupCriteriaDTO;
+import com.springboot.blog.dto.HedgeDTO;
+import com.springboot.blog.dto.HedgeGroupDTO;
 import com.springboot.blog.entity.Hedge;
 import com.springboot.blog.entity.HedgeGroup;
 import com.springboot.blog.mapper.HedgeGroupMapper;
@@ -22,9 +25,10 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SetAttribute;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import com.springboot.blog.constants.SystemConst;
 
 @Service
 @Transactional
@@ -144,44 +148,90 @@ public class HedgeGroupService {
 
     public List<HedgeGroup> findHedgeOrderAndHedgeGroup(HedgeByGroupCriteriaDTO hedgeByGroupCriteriaDTO) {
 
-        UUID organizationId = UUID.fromString("8d9ef960-90f9-11ed-a1eb-0242ac120002");
-        String search = hedgeByGroupCriteriaDTO.getSearch();
-        String buyOrSell = hedgeByGroupCriteriaDTO.getBuyOrSell();
-        boolean checkDone = hedgeByGroupCriteriaDTO.isCheckDone();
+        UUID organizationId = SecurityUtils.getUserDetail().getOrgId();
+        String search = Optional.ofNullable(hedgeByGroupCriteriaDTO.getSearch()).orElse("");
+        Choices.BILLING_SELLING buyOrSell = hedgeByGroupCriteriaDTO.getBuyOrSell();
+        List<String> status = hedgeByGroupCriteriaDTO.getStatus();
+        boolean hasSearch = !search.isBlank();
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<HedgeGroup> criteriaQuery = criteriaBuilder.createQuery(HedgeGroup.class);
 
-        Metamodel m = entityManager.getMetamodel();
-        EntityType<HedgeGroup> hedgeGroupEntityType = m.entity(HedgeGroup.class);
+        Metamodel metamodel = entityManager.getMetamodel();
+        EntityType<HedgeGroup> hedgeGroupEntityType = metamodel.entity(HedgeGroup.class);
 
         Root<HedgeGroup> hedgeGroupRoot = criteriaQuery.from(HedgeGroup.class);
+        Join<HedgeGroup, Hedge> hedgeJoin = (Join<HedgeGroup, Hedge>) hedgeGroupRoot.fetch(hedgeGroupEntityType.getSet("hedges", Hedge.class), JoinType.LEFT);
 
-        //Join<HedgeGroup, Hedge> hedgeJoin = hedgeGroupRoot.join(hedgeGroupEntityType.getSet("hedges", Hedge.class));
-
-        SetAttribute setAttribute = hedgeGroupEntityType.getSet("hedges", Hedge.class);
-
-        //hedgeGroupRoot.fetch(hedgeGroupEntityType.getSet("hedges", Hedge.class), JoinType.LEFT);
-
+        List<Predicate> hedgeJoinPredicates = new ArrayList<>();
         List<Predicate> hedgeGroupPredicates = new ArrayList<>();
 
-        Predicate predicateOrganizationId = criteriaBuilder.equal(hedgeGroupRoot.get("organizationId"), organizationId);
-        Predicate predicateId = criteriaBuilder.equal(hedgeGroupRoot.get("id"), SystemConst.HEDGE_GROUP_UNASSIGNED_ID);
-        hedgeGroupPredicates.add(criteriaBuilder.or(predicateOrganizationId, predicateId));
+        Expression statusExpression = hedgeJoin.get("status").as(String.class);
 
-        if (search != null) {
+        hedgeJoinPredicates.add(criteriaBuilder.equal(hedgeJoin.get("organizationId"), organizationId));
+        hedgeJoinPredicates.add(criteriaBuilder.like(hedgeJoin.get("buyingAndSelling").as(String.class), buyOrSell.getKey()));
+        hedgeJoinPredicates.add(statusExpression.in(status));
+
+        //hedgeJoin.on(hedgeJoinPredicates.toArray(new Predicate[hedgeJoinPredicates.size()]));
+        hedgeJoin.on(criteriaBuilder.and(criteriaBuilder.equal(hedgeJoin.get("organizationId"), organizationId)));
+
+        Predicate predicateHedgeGroupOrganizationId = criteriaBuilder.equal(hedgeGroupRoot.get("organizationId"), organizationId);
+        Predicate predicateHedgeGroupId = criteriaBuilder.equal(hedgeGroupRoot.get("id"), organizationId);
+
+        hedgeGroupPredicates.add(criteriaBuilder.or(predicateHedgeGroupId, predicateHedgeGroupOrganizationId));
+        //hedgeGroupPredicates.add(criteriaBuilder.equal(hedgeGroupRoot.get("id"), SystemConst.HEDGE_GROUP_UNASSIGNED_ID));
+
+        if (!search.isBlank()) {
             Predicate predicateHedgeGroupName = criteriaBuilder.like(criteriaBuilder.upper(hedgeGroupRoot.get("name")), "%" + search.toUpperCase() + "%");
-            Predicate predicateHedgeOrderName = criteriaBuilder.like(criteriaBuilder.upper(hedgeGroupRoot.join("hedges").get("hedgeName")), "%" + search.toUpperCase() + "%");
+            Expression<String> expression = criteriaBuilder.function("CONCAT_WS", String.class,
+                    criteriaBuilder.literal(" "), hedgeJoin.<String>get("hedgeName"),
+                    hedgeJoin.<String>get("transactionAmount"), hedgeJoin.<String>get("percentage"));
+
+            Predicate predicateHedgeOrderName = criteriaBuilder.like(criteriaBuilder.upper(expression), "%" + search.toUpperCase() + "%");
             hedgeGroupPredicates.add(criteriaBuilder.or(predicateHedgeGroupName, predicateHedgeOrderName));
         }
 
-        criteriaQuery.where(hedgeGroupPredicates.toArray(new Predicate[hedgeGroupPredicates.size()]));
-
+        //criteriaQuery.where(hedgeGroupPredicates.toArray(new Predicate[hedgeGroupPredicates.size()]));
         TypedQuery<HedgeGroup> hedgeGroupTypedQuery = entityManager.createQuery(criteriaQuery);
 
         List<HedgeGroup> hedgeGroups = hedgeGroupTypedQuery.getResultList();
+        List<HedgeGroupDTO> hedgeGroupDTOS = hedgeGroups.stream().map(hedgeGroup -> {
+            HedgeGroupDTO hedgeGroupDTO = hedgeGroupMapper.toDto(hedgeGroup);
 
-        return hedgeGroups;
+            if (hedgeGroup.getHedges().isEmpty()) return hedgeGroupDTO;
+
+            List<Hedge> hedges = hedgeGroup.getHedges().stream().collect(Collectors.toList());
+            List<HedgeDTO> hedgeDTOS = new ArrayList<>(hedgeMapper.toDto(hedges));
+            hedgeGroupDTO.setHedges(hedgeDTOS);
+
+            return hedgeGroupDTO;
+        }).collect(Collectors.toList());
+
+//        List<HedgeGroup> hedgeGroupContainers = hedgeGroupRepository
+//                .findByOrganizationIdAndNameContainingIgnoreCase(organizationId, search);
+//
+//        List<HedgeGroupDTO> hedgeGroupDTOContainers = hedgeGroupContainers.stream().map(hedgeGroup -> {
+//            HedgeGroupDTO hedgeGroupDTO = hedgeGroupMapper.toDto(hedgeGroup);
+//            return hedgeGroupDTO;
+//        }).filter(hedgeGroupDTOContainer -> {
+//            boolean hasHedgeGroupNoExist = hedgeGroupDTOS.stream()
+//                    .allMatch(hedgeGroupDTO -> !hedgeGroupDTO.getId().equals(hedgeGroupDTOContainer.getId()));
+//            return hasHedgeGroupNoExist;
+//        }).collect(Collectors.toList());
+//
+//        boolean hasGroupUnassignedNotExist = hedgeGroupDTOS
+//                .stream().allMatch(hedgeGroupDTO -> !hedgeGroupDTO.getId().equals(SystemConst.HEDGE_GROUP_UNASSIGNED_ID));
+//
+//        if ((hasGroupUnassignedNotExist && !hasSearch) || (search.equals(SystemConst.HEDGE_GROUP_UNASSIGNED_STRING) && hasGroupUnassignedNotExist)) {
+//            HedgeGroup hedgeGroupUnassigned = hedgeGroupRepository.findById(SystemConst.HEDGE_GROUP_UNASSIGNED_ID)
+//                    .orElseThrow(() -> new NotFoundException("hedgeGroupId", "Hedge Group Unassigned not found!"));
+//            HedgeGroupDTO hedgeGroupDTO = hedgeGroupMapper.toDto(hedgeGroupUnassigned);
+//
+//            hedgeGroupDTOS.add(hedgeGroupDTO);
+//        }
+//
+//        hedgeGroupDTOS.addAll(hedgeGroupDTOContainers);
+        return hedgeGroupDTOS;
     }
 
 

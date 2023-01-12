@@ -1,5 +1,6 @@
 package com.springboot.blog.controller;
 
+import com.springboot.blog.dto.HedgeGroupDTO;
 import com.springboot.blog.entity.Hedge;
 import com.springboot.blog.entity.HedgeGroup;
 import com.springboot.blog.service.HedgeGroupService;
@@ -26,7 +27,7 @@ public class HedgeGroupController {
     private static final Logger logger = LoggerFactory.getLogger(HedgeGroupController.class);
 
     @GetMapping("/get-hedge-order-and-groups")
-    public ResponseEntity<List<HedgeGroup>> findHedgeOrderAndGroupByHedgeGroup(@ModelAttribute HedgeByGroupCriteriaDTO hedgeCommonCriteriaDTO) {
+    public ResponseEntity<List<HedgeGroupDTO>> findHedgeOrderAndGroupByHedgeGroup(@ModelAttribute HedgeByGroupCriteriaDTO hedgeCommonCriteriaDTO) {
         return new ResponseEntity<>(hedgeGroupService.findHedgeOrderAndHedgeGroup(hedgeCommonCriteriaDTO), HttpStatus.OK);
     }
 

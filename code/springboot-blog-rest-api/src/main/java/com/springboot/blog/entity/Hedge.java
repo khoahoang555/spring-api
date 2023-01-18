@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "order_hedge")
-public class Hedge implements Serializable {
+public class Hedge extends AbstractAuditingEntity implements Serializable {
 
     @Id
     @GeneratedValue

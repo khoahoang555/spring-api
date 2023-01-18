@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "order_hedge_group", uniqueConstraints = {@UniqueConstraint(columnNames = {"organization_id", "name"})})
-public class HedgeGroup implements Serializable {
+public class HedgeGroup extends AbstractAuditingEntity implements Serializable {
 
     @Id
     @GeneratedValue
@@ -32,5 +32,6 @@ public class HedgeGroup implements Serializable {
     private String name;
 
     @OneToMany(mappedBy = "hedgeGroup", fetch = FetchType.LAZY)
+    @org.hibernate.annotations.OrderBy(clause = "createdAt ASC")
     private Set<Hedge> hedges;
 }

@@ -12,8 +12,6 @@ import com.springboot.blog.mapper.HedgeMapper;
 import com.springboot.blog.mapper.SaveHedgeGroupMapper;
 import com.springboot.blog.repository.IHedgeGroupRepository;
 import com.springboot.blog.repository.IHedgeRepository;
-import org.hibernate.graph.GraphParser;
-import org.hibernate.graph.RootGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,6 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
-import javax.persistence.metamodel.SetAttribute;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -165,7 +162,6 @@ public class HedgeGroupService {
 
         Root<HedgeGroup> hedgeGroupRoot = criteriaQuery.from(HedgeGroup.class);
         Join<HedgeGroup, Hedge> hedgeJoin = hedgeGroupRoot.join(hedgeGroupEntityType.getSet("hedges", Hedge.class), JoinType.LEFT);
-
         List<Predicate> hedgeJoinPredicates = new ArrayList<>();
         List<Predicate> hedgeGroupPredicates = new ArrayList<>();
 
@@ -193,8 +189,22 @@ public class HedgeGroupService {
         }
 
         criteriaQuery.where(hedgeGroupPredicates.toArray(new Predicate[hedgeGroupPredicates.size()]));
+
+        List<Order> orderList = new ArrayList<>();
+
+        //orderList.add(criteriaBuilder.asc(hedgeGroupRoot.get("createdAt")));
+
+        Path<String> createdAt = hedgeJoin.get("createdAt");
+
+        //orderList.add( criteriaBuilder.asc(hedgeJoin.get("createdAt")));
+
+        criteriaQuery.orderBy(criteriaBuilder.asc(hedgeGroupRoot.get("createdAt")));
+
+
+
         TypedQuery<HedgeGroup> hedgeGroupTypedQuery = entityManager.createQuery(criteriaQuery);
         hedgeGroupTypedQuery.setHint("javax.persistence.loadgraph", entityGraph);
+
         List<HedgeGroup> hedgeGroups = hedgeGroupTypedQuery.getResultList();
         List<HedgeGroupDTO> hedgeGroupDTOS = hedgeGroups.stream().map(hedgeGroup -> {
             HedgeGroupDTO hedgeGroupDTO = hedgeGroupMapper.toDto(hedgeGroup);

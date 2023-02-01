@@ -14,6 +14,8 @@ import com.springboot.blog.repository.IHedgeGroupRepository;
 import com.springboot.blog.repository.IHedgeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import javax.persistence.*;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import java.awt.print.Pageable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -192,20 +195,37 @@ public class HedgeGroupService {
 
         List<Order> orderList = new ArrayList<>();
 
+        orderList.add(criteriaBuilder.asc(hedgeGroupRoot.get("createdAt")));
+        orderList.add(criteriaBuilder.asc(hedgeJoin.get("createdAt")));
+
+        //Order order1 = criteriaBuilder.asc(hedgeGroupRoot.get("createdAt"));
+
         //orderList.add(criteriaBuilder.asc(hedgeGroupRoot.get("createdAt")));
 
-        Path<String> createdAt = hedgeJoin.get("createdAt");
+        //Path<String> createdAt = hedgeJoin.get("createdAt");
 
         //orderList.add( criteriaBuilder.asc(hedgeJoin.get("createdAt")));
 
-        criteriaQuery.orderBy(criteriaBuilder.asc(hedgeGroupRoot.get("createdAt")));
+        criteriaQuery.orderBy(
+                orderList
+        );
 
+        //criteriaQuery.or
 
+//        criteriaQuery.orderBy(
+//                criteriaBuilder.asc(hedgeJoin.get("createdAt"))
+//        );
 
         TypedQuery<HedgeGroup> hedgeGroupTypedQuery = entityManager.createQuery(criteriaQuery);
         hedgeGroupTypedQuery.setHint("javax.persistence.loadgraph", entityGraph);
 
+        //Pageable pageable = PageRequest.of(0, 1000, Sort.by(orderList));
+
         List<HedgeGroup> hedgeGroups = hedgeGroupTypedQuery.getResultList();
+
+        //hedgeGroupTypedQuery.setFirstResult(Math.toIntExact(pageable.getOffset()));
+
+
         List<HedgeGroupDTO> hedgeGroupDTOS = hedgeGroups.stream().map(hedgeGroup -> {
             HedgeGroupDTO hedgeGroupDTO = hedgeGroupMapper.toDto(hedgeGroup);
 

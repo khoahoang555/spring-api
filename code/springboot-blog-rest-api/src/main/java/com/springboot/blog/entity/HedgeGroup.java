@@ -32,6 +32,6 @@ public class HedgeGroup extends AbstractAuditingEntity implements Serializable {
     private String name;
 
     @OneToMany(mappedBy = "hedgeGroup", fetch = FetchType.LAZY)
-    @org.hibernate.annotations.OrderBy(clause = "createdAt ASC")
+//    @org.hibernate.annotations.OrderBy(clause = "createdAt ASC")
     private Set<Hedge> hedges;
 }
